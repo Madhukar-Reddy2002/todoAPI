@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from textblob import TextBlob
 from pydantic import BaseModel
-#import uvicorn
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer
 
 app = FastAPI(title="Sentiment Analysis API")
 
@@ -38,7 +40,8 @@ def sentiment_analysis(request: SentimentRequest):
         "polarity": polarity,
         "subjectivity": subjectivity
     }
-        class SummarizeRequest(BaseModel):
+
+class SummarizeRequest(BaseModel):
     text: str
     num_lines: int = 3  # Default to 5 lines in summary
 
@@ -59,6 +62,3 @@ def summarize(request: SummarizeRequest):
         "original_text": text,
         "summary": summary_text
     }
-
-#if __name__ == '__main__':
-    #uvicorn.run('app:app', port=8000)
