@@ -38,6 +38,27 @@ def sentiment_analysis(request: SentimentRequest):
         "polarity": polarity,
         "subjectivity": subjectivity
     }
+    class SummarizeRequest(BaseModel):
+    text: str
+    num_lines: int = 3  # Default to 5 lines in summary
+
+@app.post("/summarize")
+def summarize(request: SummarizeRequest):
+    text = request.text
+    num_lines = request.num_lines
+
+    # Use Sumy library for summarization
+    parser = PlaintextParser.from_string(text, Tokenizer("english"))
+    summarizer = LsaSummarizer()
+    summary = summarizer(parser.document, num_lines)
+
+    # Convert summary sentences back to a string
+    summary_text = " ".join(str(sentence) for sentence in summary)
+
+    return {
+        "original_text": text,
+        "summary": summary_text
+    }
 
 
 #if __name__ == '__main__':
