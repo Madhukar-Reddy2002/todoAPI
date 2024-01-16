@@ -1,16 +1,26 @@
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from textblob import TextBlob
+from pydantic import BaseModel
 #import uvicorn
 
 app = FastAPI(title="Sentiment Analysis API")
 
-@app.get("/", include_in_schema=False)
-def index():
-    return RedirectResponse("/docs", status_code=308)
+# Enable CORS (Cross-Origin Resource Sharing) to allow requests from any origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/sentiment-analysis/{text}")
-def sentiment_analysis(text: str):
+class SentimentRequest(BaseModel):
+    text: str
+
+@app.post("/sentiment-analysis")
+def sentiment_analysis(request: SentimentRequest):
+    text = request.text
     blob = TextBlob(text)
     polarity = blob.sentiment.polarity
     subjectivity = blob.sentiment.subjectivity
@@ -29,5 +39,6 @@ def sentiment_analysis(text: str):
         "subjectivity": subjectivity
     }
 
+
 #if __name__ == '__main__':
-    #uvicorn.run('app:app', host='0.0.0.0', port=8000)
+    #uvicorn.run('app:app', port=8000)
