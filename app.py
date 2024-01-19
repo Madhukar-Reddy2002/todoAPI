@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lsa import LsaSummarizer
-#import uvicorn
+import uvicorn
 
 app = FastAPI(title="Text Analysis and Summarization API")
 
