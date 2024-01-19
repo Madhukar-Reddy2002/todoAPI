@@ -1,1 +1,1 @@
-web: uvicorn app:app --port $PORT
+python -m uvicorn app:app --port $PORT --reload
