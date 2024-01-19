@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from textblob import TextBlob
 from pydantic import BaseModel
@@ -18,14 +18,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class AnalyzeAndSummarizeRequest(BaseModel):
+class SentimentAnalysisRequest(BaseModel):
+    text: str
+
+class SummarizationRequest(BaseModel):
     text: str
     num_lines: int = 3  # Default to 3 lines in summary
 
-@app.post("/analyze-and-summarize")
-def analyze_and_summarize(request: AnalyzeAndSummarizeRequest):
+@app.post("/sentiment-analysis")
+def sentiment_analysis(request: SentimentAnalysisRequest):
     text = request.text
-    num_lines = request.num_lines
 
     # Sentiment Analysis
     blob = TextBlob(text)
@@ -39,6 +41,21 @@ def analyze_and_summarize(request: AnalyzeAndSummarizeRequest):
     else:
         sentiment = "neutral"
 
+    # Return sentiment analysis results
+    return {
+        "original_text": text,
+        "sentiment_analysis": {
+            "sentiment": sentiment,
+            "polarity": polarity,
+            "subjectivity": subjectivity
+        }
+    }
+
+@app.post("/text-summarization")
+def text_summarization(request: SummarizationRequest):
+    text = request.text
+    num_lines = request.num_lines
+
     # Summarization
     parser = PlaintextParser.from_string(text, Tokenizer("english"))
     summarizer = LsaSummarizer()
@@ -47,14 +64,9 @@ def analyze_and_summarize(request: AnalyzeAndSummarizeRequest):
     # Convert summary sentences back to a string
     summary_text = " ".join(str(sentence) for sentence in summary)
 
-    # Return combined results
+    # Return summarization results
     return {
         "original_text": text,
-        "sentiment_analysis": {
-            "sentiment": sentiment,
-            "polarity": polarity,
-            "subjectivity": subjectivity
-        },
         "summarization": {
             "num_lines": num_lines,
             "summary": summary_text
