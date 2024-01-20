@@ -2,3 +2,4 @@ fastapi==0.70.0
 textblob==0.15.3
 pydantic==1.9.0
 sumy==0.8.1
+uvicorn
